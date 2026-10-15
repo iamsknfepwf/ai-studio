@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: ai-studio
+    runtime: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: BRIDGEGATE_KEY
+        sync: false   # you paste this manually in Render dashboard — never commit it
+      - key: NODE_ENV
+        value: production
