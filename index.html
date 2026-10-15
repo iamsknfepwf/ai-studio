@@ -1243,6 +1243,27 @@ function onModelChange() {
 let groups = [];
 let nextId = 10;
 
+// ── Persist generations to localStorage ──
+function saveGroups() {
+  try {
+    // Only save completed/errored groups (not ones still generating)
+    const saveable = groups.map(g => ({
+      ...g,
+      imgs: g.imgs.map(img => img.generating ? { error: 'Interrupted', generating: false, cid: img.cid } : img)
+    }));
+    localStorage.setItem('ai_studio_groups', JSON.stringify(saveable));
+    localStorage.setItem('ai_studio_nextid', String(nextId));
+  } catch(e) {}
+}
+function loadGroups() {
+  try {
+    const raw = localStorage.getItem('ai_studio_groups');
+    const nid = localStorage.getItem('ai_studio_nextid');
+    if (raw) { groups = JSON.parse(raw); }
+    if (nid) { nextId = parseInt(nid, 10) || 10; }
+  } catch(e) {}
+}
+
 // ── Render ───────────────────────────────
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -1359,6 +1380,7 @@ function renderGroups() {
       </div>`;
     return;
   }
+  saveGroups();
   area.innerHTML = groups.map(g => `
   <div class="img-group" id="group-${g.id}">
     <div class="img-group-prompt">
@@ -2061,6 +2083,7 @@ async function showCredits() {
 function clearHistory() {
   if (groups.length === 0) { showToast('Nothing to clear'); return; }
   groups = [];
+  try { localStorage.removeItem('ai_studio_groups'); localStorage.removeItem('ai_studio_nextid'); } catch(e) {}
   renderGroups();
   showToast('Cleared');
 }
@@ -2100,6 +2123,7 @@ document.getElementById('promptBox').addEventListener('keydown', e => {
 
 // ── Init ──────────────────────────────────
 switchMode('image'); // populate model dropdown with real models
+loadGroups();
 renderGroups();
 </script>
 </body>
