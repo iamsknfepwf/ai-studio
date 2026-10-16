@@ -636,11 +636,139 @@ html, body { height: 100%; background: var(--bg0); color: var(--fg); font-family
   .left-panel { width: 240px; }
   .content-area { padding: 12px; }
 }
-@media (max-width: 680px) {
+
+/* ── Mobile (≤640px) ── */
+@media (max-width: 640px) {
+  /* Hide desktop sidebar and rail */
   .rail { display: none; }
-  .left-panel { width: 200px; }
-  .img-row { grid-template-columns: 1fr; }
-  .global-topbar { left: 0; }
+  .left-panel {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    width: 100%;
+    height: 88vh;
+    z-index: 120;
+    border-right: none;
+    border-top: 1px solid var(--border2);
+    border-radius: 16px 16px 0 0;
+    transform: translateY(100%);
+    transition: transform .28s cubic-bezier(.4,0,.2,1);
+    box-shadow: 0 -8px 40px rgba(0,0,0,.5);
+  }
+  .left-panel.mobile-open {
+    transform: translateY(0);
+  }
+  /* Drag handle */
+  .left-panel::before {
+    content: '';
+    display: block;
+    width: 36px; height: 4px;
+    border-radius: 99px;
+    background: var(--border2);
+    margin: 10px auto 4px;
+    flex-shrink: 0;
+  }
+  /* generate-area stays pinned inside the drawer */
+  .generate-area {
+    border-top: 1px solid var(--border);
+    padding: 10px 16px 20px;
+  }
+  /* Main takes full width */
+  .main { width: 100%; }
+  /* Topbar shrinks */
+  .topbar { padding: 0 12px; }
+  .topbar-tab { padding: 0 10px; font-size: 12px; }
+  /* Content area gets bottom padding so cards don't hide under nav bar */
+  .content-area { padding: 10px 10px 80px; }
+  /* Grid: single column on very small, two on wider mobile */
+  .img-grid { grid-template-columns: 1fr; }
+  .img-row  { grid-template-columns: 1fr; }
+
+  /* Overlay behind drawer */
+  .mobile-overlay {
+    display: block;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.5);
+    z-index: 110;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .28s;
+  }
+  .mobile-overlay.visible { opacity: 1; pointer-events: auto; }
+
+  /* ── Bottom nav bar ── */
+  .mobile-bar {
+    display: flex;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 58px;
+    background: var(--bg1);
+    border-top: 1px solid var(--border);
+    align-items: center;
+    padding: 0 8px;
+    gap: 4px;
+    z-index: 100;
+  }
+  .mobile-bar-btn {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3px;
+    background: none; border: none;
+    color: var(--fg3); font-size: 10px; font-family: var(--font);
+    padding: 6px 4px;
+    border-radius: var(--r);
+    cursor: pointer;
+    transition: color .13s, background .13s;
+  }
+  .mobile-bar-btn.active { color: var(--fg); background: var(--bg3); }
+  .mobile-bar-btn:hover { color: var(--fg2); }
+  /* Generate button in bottom bar — prominent */
+  .mobile-gen-btn {
+    flex: 2;
+    height: 40px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: var(--r);
+    color: var(--fg);
+    font-family: var(--font);
+    font-size: 13px; font-weight: 500;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    cursor: pointer;
+    transition: background .13s;
+    position: relative; overflow: hidden;
+  }
+  .mobile-gen-btn:hover { background: var(--bg4); }
+  .mobile-gen-btn::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(224,64,251,.08) 50%, transparent 100%);
+    opacity: 0; transition: opacity .2s;
+  }
+  .mobile-gen-btn:hover::after { opacity: 1; }
+  /* Settings (panel toggle) button */
+  .mobile-settings-btn {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3px;
+    background: none; border: none;
+    color: var(--fg3); font-size: 10px; font-family: var(--font);
+    padding: 6px 4px;
+    border-radius: var(--r);
+    cursor: pointer;
+    transition: color .13s, background .13s;
+  }
+  .mobile-settings-btn:hover { color: var(--fg2); }
+  .mobile-settings-btn.open { color: var(--accent); }
+}
+
+/* Hide mobile bar on desktop */
+.mobile-bar { display: none; }
+.mobile-overlay { display: none; }
+
+/* Topbar text on small screens */
+@media (max-width: 480px) {
+  .tb-text-btn span { display: none; }
+  .topbar { padding: 0 8px; }
+  .topbar-tab { padding: 0 8px; }
 }
 </style>
 </head>
@@ -977,6 +1105,38 @@ html, body { height: 100%; background: var(--bg0); color: var(--fg); font-family
     </div>
   </main>
 
+</div>
+
+<!-- Mobile overlay (behind drawer) -->
+<div class="mobile-overlay" id="mobileOverlay" onclick="closeMobilePanel()"></div>
+
+<!-- Mobile bottom bar -->
+<div class="mobile-bar" id="mobileBar">
+  <!-- Image -->
+  <button class="mobile-bar-btn active" id="mbarImage" onclick="mobileSetMode('image')">
+    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
+    Image
+  </button>
+  <!-- Video -->
+  <button class="mobile-bar-btn" id="mbarVideo" onclick="mobileSetMode('video')">
+    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><polygon points="23,7 16,12 23,17 23,7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+    Video
+  </button>
+  <!-- Generate button -->
+  <button class="mobile-gen-btn" onclick="generate()">
+    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/></svg>
+    Generate
+  </button>
+  <!-- Credits -->
+  <button class="mobile-bar-btn" onclick="showCredits()">
+    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/></svg>
+    Credits
+  </button>
+  <!-- Settings / panel toggle -->
+  <button class="mobile-settings-btn" id="mobileSettingsBtn" onclick="toggleMobilePanel()">
+    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    Settings
+  </button>
 </div>
 
 <div class="toast-wrap" id="toastWrap"></div>
@@ -2125,6 +2285,48 @@ document.getElementById('promptBox').addEventListener('keydown', e => {
 switchMode('image'); // populate model dropdown with real models
 loadGroups();
 renderGroups();
+
+// ── Mobile panel ──────────────────────────
+function isMobile() { return window.innerWidth <= 640; }
+
+function toggleMobilePanel() {
+  const panel = document.querySelector('.left-panel');
+  const overlay = document.getElementById('mobileOverlay');
+  const btn = document.getElementById('mobileSettingsBtn');
+  const isOpen = panel.classList.contains('mobile-open');
+  if (isOpen) {
+    panel.classList.remove('mobile-open');
+    overlay.classList.remove('visible');
+    btn.classList.remove('open');
+  } else {
+    panel.classList.add('mobile-open');
+    overlay.classList.add('visible');
+    btn.classList.add('open');
+  }
+}
+
+function closeMobilePanel() {
+  document.querySelector('.left-panel').classList.remove('mobile-open');
+  document.getElementById('mobileOverlay').classList.remove('visible');
+  const btn = document.getElementById('mobileSettingsBtn');
+  if (btn) btn.classList.remove('open');
+}
+
+function mobileSetMode(mode) {
+  // Update mobile bar active state
+  document.querySelectorAll('.mobile-bar-btn').forEach(b => b.classList.remove('active'));
+  const target = mode === 'image' ? document.getElementById('mbarImage') : document.getElementById('mbarVideo');
+  if (target) target.classList.add('active');
+  // Delegate to existing rail mode switcher
+  setRailMode(mode, null);
+}
+
+// Close drawer when generate is tapped on mobile
+const _origGenerate = generate;
+generate = async function() {
+  if (isMobile()) closeMobilePanel();
+  return _origGenerate.apply(this, arguments);
+};
 </script>
 </body>
 </html>
