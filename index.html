@@ -686,36 +686,46 @@ html, body { height: 100%; background: var(--bg0); color: var(--fg); font-family
 
 /* ══ MOBILE  < 640px ═════════════════════ */
 @media (max-width: 639px) {
-  /* ── Shell becomes full-screen column ── */
-  html, body { overflow: hidden; }
-  .shell { flex-direction: column; height: 100dvh; }
+  /* ── Shell: allow fixed children to escape overflow clip ── */
+  html, body { overflow: hidden; height: 100%; }
+  .shell {
+    flex-direction: row;
+    height: 100dvh;
+    /* CRITICAL: must NOT be overflow:hidden — that clips position:fixed children */
+    overflow: visible;
+  }
 
   /* ── Rail: hide ── */
   .rail { display: none; }
 
-  /* ── Left panel: off-canvas bottom drawer ── */
+  /* ── Left panel: taken OUT of flex flow, becomes fixed drawer ── */
   .left-panel {
-    position: fixed;
+    /* Remove from flex flow entirely */
+    position: fixed !important;
     bottom: 0; left: 0; right: 0;
-    width: 100%;
-    /* dvh keeps it correct even with browser chrome appearing/disappearing */
-    height: min(92dvh, 680px);
+    width: 100% !important;
+    height: min(92dvh, 700px) !important;
     z-index: 120;
     border-right: none;
     border-top: 1px solid var(--border2);
     border-radius: 18px 18px 0 0;
-    /* Start off-screen */
-    transform: translateY(100%);
+    /* Start hidden below viewport */
+    transform: translateY(110%) !important;
     transition: transform .3s cubic-bezier(.32,0,.67,0);
     box-shadow: 0 -12px 48px rgba(0,0,0,.6);
-    /* flex layout so generate button sticks to bottom */
-    display: flex;
+    display: flex !important;
     flex-direction: column;
     overflow: hidden;
+    /* Prevent it from taking any flex space */
+    flex-shrink: 0;
+    flex-basis: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
   }
   .left-panel.mobile-open {
-    transform: translateY(0);
+    transform: translateY(0) !important;
     transition: transform .3s cubic-bezier(.33,1,.68,1);
+    max-width: 100% !important;
   }
   /* Drag handle pill */
   .left-panel::before {
