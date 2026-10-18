@@ -2213,7 +2213,7 @@ async function handleStartFrameUpload(input) {
   reader.readAsDataURL(file);
   try {
     const b64 = await fileToB64(file);
-    const data = await uploadAsset({ image_data: dataUrlToRawB64(b64), mime_type: file.type });
+    const data = await uploadAsset({ image_data: b64, mime_type: file.type });
     pendingStartFrame = data.asset_id;
     document.getElementById('startFrameCount').textContent = 'ready ✓';
     showToast('Start frame uploaded ✓');
@@ -2236,7 +2236,7 @@ async function handleVideoUpload(input) {
   document.getElementById('videoInputCount').textContent = 'uploading…';
   try {
     const b64 = await fileToB64(file);
-    const data = await uploadAsset({ image_data: dataUrlToRawB64(b64), mime_type: file.type });
+    const data = await uploadAsset({ image_data: b64, mime_type: file.type });
     pendingVideoAsset = data.asset_id;
     document.getElementById('videoInputCount').textContent = file.name.slice(0,20) + ' ✓';
     showToast('Video uploaded ✓');
@@ -2253,7 +2253,7 @@ async function handleAudioUpload(input) {
   document.getElementById('audioInputCount').textContent = 'uploading…';
   try {
     const b64 = await fileToB64(file);
-    const data = await uploadAsset({ image_data: dataUrlToRawB64(b64), mime_type: file.type });
+    const data = await uploadAsset({ image_data: b64, mime_type: file.type });
     pendingAudioAsset = data.asset_id;
     document.getElementById('audioInputCount').textContent = file.name.slice(0,20) + ' ✓';
     showToast('Audio uploaded ✓');
@@ -2267,15 +2267,10 @@ async function handleAudioUpload(input) {
 function fileToB64(file) {
   return new Promise((res, rej) => {
     const r = new FileReader();
-    // Return full data URL — server strips prefix if needed
-    r.onload = () => res(r.result);
+    r.onload = () => res(r.result); // full data URL: "data:image/jpeg;base64,..."
     r.onerror = rej;
     r.readAsDataURL(file);
   });
-}
-function dataUrlToRawB64(dataUrl) {
-  // Strip "data:image/jpeg;base64," prefix → raw base64
-  return dataUrl.split(',')[1];
 }
 async function uploadAsset(payload) {
   const resp = await fetch(`${API}/api/upload`, {
@@ -2304,8 +2299,8 @@ async function handleRefUpload(input) {
 
   // Upload to Bridgegate
   try {
-    const dataUrl = await fileToB64(file);
-    const data = await uploadAsset({ image_data: dataUrlToRawB64(dataUrl), mime_type: file.type });
+    const b64 = await fileToB64(file);
+    const data = await uploadAsset({ image_data: b64, mime_type: file.type });
     pendingRefUrl = data.asset_id;
     document.getElementById('refCount').textContent = 'ready ✓';
     showToast('Reference uploaded ✓');
@@ -2539,7 +2534,7 @@ async function mpHandleRefUpload(input) {
   reader.readAsDataURL(file);
   try {
     const b64 = await fileToB64(file);
-    const data = await uploadAsset({ image_data: dataUrlToRawB64(b64), mime_type: file.type });
+    const data = await uploadAsset({ image_data: b64, mime_type: file.type });
     mpPendingRef = data.asset_id;
     document.getElementById('mpRefCount').textContent = 'ready ✓';
     showToast('Reference uploaded ✓');
@@ -2561,7 +2556,7 @@ async function mpHandleStartFrame(input) {
   document.getElementById('mpStartFrameCount').textContent = 'uploading…';
   try {
     const b64 = await fileToB64(file);
-    const data = await uploadAsset({ image_data: dataUrlToRawB64(b64), mime_type: file.type });
+    const data = await uploadAsset({ image_data: b64, mime_type: file.type });
     mpPendingStartFrame = data.asset_id;
     document.getElementById('mpStartFrameCount').textContent = file.name.slice(0,18) + ' ✓';
     showToast('Start frame uploaded ✓');
