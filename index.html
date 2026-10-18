@@ -2199,7 +2199,7 @@ async function handleStartFrameUpload(input) {
   reader.onload = e => {
     document.getElementById('startFrameThumb').src = e.target.result;
     document.getElementById('startFramePreview').style.display = 'block';
-    document.getElementById('startFrameCount').textContent = 'uploading…';
+    document.getElementById('startFrameCount').textContent = 'reading…';
   };
   reader.readAsDataURL(file);
   try {
@@ -2254,11 +2254,27 @@ async function handleAudioUpload(input) {
 }
 
 // ── Shared helpers ────────────────────────
-function fileToB64(file) {
+// Resize image to max 1024px and re-encode as JPEG for fast transfer
+function fileToB64(file, maxPx = 1024, quality = 0.85) {
   return new Promise((res, rej) => {
     const r = new FileReader();
-    r.onload = () => res(r.result); // full data URL: "data:image/jpeg;base64,..."
     r.onerror = rej;
+    r.onload = e => {
+      const img = new Image();
+      img.onerror = rej;
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if (w > maxPx || h > maxPx) {
+          if (w > h) { h = Math.round(h * maxPx / w); w = maxPx; }
+          else { w = Math.round(w * maxPx / h); h = maxPx; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        res(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = e.target.result;
+    };
     r.readAsDataURL(file);
   });
 }
@@ -2283,7 +2299,7 @@ async function handleRefUpload(input) {
   reader.onload = e => {
     document.getElementById('refThumb').src = e.target.result;
     document.getElementById('refPreview').style.display = 'block';
-    document.getElementById('refCount').textContent = 'uploading…';
+    document.getElementById('refCount').textContent = 'reading…';
   };
   reader.readAsDataURL(file);
 
@@ -2518,7 +2534,7 @@ async function mpHandleRefUpload(input) {
   reader.onload = e => {
     document.getElementById('mpRefThumb').src = e.target.result;
     document.getElementById('mpRefPreview').style.display = 'block';
-    document.getElementById('mpRefCount').textContent = 'uploading…';
+    document.getElementById('mpRefCount').textContent = 'reading…';
   };
   reader.readAsDataURL(file);
   try {
@@ -2541,7 +2557,7 @@ function mpClearRef() {
 
 async function mpHandleStartFrame(input) {
   const file = input.files[0]; if (!file) return;
-  document.getElementById('mpStartFrameCount').textContent = 'uploading…';
+  document.getElementById('mpStartFrameCount').textContent = 'reading…';
   try {
     const b64 = await fileToB64(file);
     mpPendingStartFrame = b64;
