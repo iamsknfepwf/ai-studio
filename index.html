@@ -2007,34 +2007,6 @@ function switchMode(mode) {
   const sel = document.getElementById('modelSel');
   if (mode === 'video') {
     sel.innerHTML = `
-      <optgroup label="── Google Veo ──">
-        <option value="veo-3.1-lite-generate-001">Google Veo 3.1 Lite — 893cr ~60s</option>
-        <option value="veo-3.1-fast-generate-001">Google Veo 3.1 Fast — 2424cr ~69s</option>
-        <option value="veo-3.1-generate-001">Google Veo 3.1 — 4848cr ~94s</option>
-      </optgroup>
-      <optgroup label="── Gemini Omni ──">
-        <option value="gemini-omni-flash">Gemini Omni Flash — 2451cr ~120s</option>
-        <option value="gemini-omni-1.1-flash">Gemini Omni Flash 1.1 — 2451cr ~120s</option>
-        <option value="gemini-omni-1.1-flash-extend">Gemini Omni Flash 1.1 Extend — 2451cr ~120s</option>
-      </optgroup>
-      <optgroup label="── Kling ──">
-        <option value="kling-2.5-turbo">Kling 2.5 Turbo — 2121cr ~120s</option>
-        <option value="kling-2.6-pro">Kling 2.6 Pro — 2121cr ~133s</option>
-        <option value="kling-2.6-pro-motion-control">Kling 2.6 Pro Motion Control — 679cr ~120s</option>
-        <option value="kling-3-pro">Kling 3.0 Pro — 2037cr ~150s</option>
-        <option value="kling-3-pro-motion-control">Kling 3.0 Pro Motion Control — 1018cr ~120s</option>
-        <option value="kling-o3-pro">Kling O3 Pro — 2037cr ~150s</option>
-        <option value="kling-o3-edit-video">Kling O3 Video Edit — 1030cr ~150s</option>
-        <option value="kling-omni-video">Kling O1 Video — 3394cr ~140s</option>
-        <option value="kling-omni-edit-video">Kling O1 Video Edit — 1030cr ~357s</option>
-      </optgroup>
-      <optgroup label="── Runway ──">
-        <option value="runway-gen4-turbo">Runway Gen-4 Turbo — 606cr ~40s</option>
-        <option value="runway-gen4-5">Runway Gen-4.5 — 2200cr ~200s</option>
-        <option value="runway-act-two">Runway Act-Two — 303cr ~70s</option>
-        <option value="runway-aleph2">Runway Aleph 2.0 — 1697cr ~130s</option>
-        <option value="runway-ruby">Runway Ruby — 1212cr ~90s</option>
-      </optgroup>
       <optgroup label="── ByteDance Seedance ──">
         <option value="bytedance-seedance-v1.5-pro">Seedance 1.5 Pro — 287cr ~119s</option>
         <option value="bytedance-seedance-v1-pro">Seedance 1 Pro — 426cr ~97s</option>
@@ -2042,91 +2014,14 @@ function switchMode(mode) {
         <option value="bytedance-seedance-v2-fast">Seedance 2.0 Fast — 2612cr ~90s</option>
         <option value="bytedance-seedance-v2">Seedance 2.0 — 3258cr ~150s</option>
         <option value="bytedance-seedance-v2.5">Seedance 2.5 — 4980cr ~150s</option>
-        <option value="bytedance-seedance-v2.5-edit">Seedance 2.5 Video Edit — 4980cr ~150s</option>
-        <option value="bytedance-seedance-v2.5-extend">Seedance 2.5 Video Extend — 4980cr ~150s</option>
-      </optgroup>
-      <optgroup label="── LTX ──">
-        <option value="ltx-v2">LTX 2 Pro — 2182cr ~79s</option>
-        <option value="ltx-v2-fast">LTX 2 Fast — 1454cr ~119s</option>
-        <option value="ltx-v2-retake">LTX 2 Retake — 1212cr ~68s</option>
-        <option value="ltx-audio-to-video">LTX Audio-to-Video — 720cr ~120s</option>
-      </optgroup>
-      <optgroup label="── Wan ──">
-        <option value="wan-2.5-preview-video">Wan 2.5 Video — 1515cr ~154s</option>
-        <option value="wan-2.6">Wan 2.6 — 3030cr ~268s</option>
-      </optgroup>
-      <optgroup label="── MiniMax ──">
-        <option value="minimax-h3-max">MiniMax H3 Max — 2424cr ~30s</option>
-        <option value="minimax-h3">MiniMax H3 — 3939cr ~240s</option>
-        <option value="minimax-h3-max-recast">MiniMax H3 Max Recast (style transfer)</option>
-      </optgroup>
-      <optgroup label="── FLUX Video ──">
-        <option value="flux-3-edit-video">FLUX 3 Edit — 182cr ~300s</option>
-        <option value="flux-3-video">FLUX 3 — 5151cr ~150s</option>
-      </optgroup>
-      <optgroup label="── Lipsync / Avatar ──">
-        <option value="veed-lipsync">Veed Lipsync — 41cr ~105s</option>
-        <option value="veed-lipsync-v2">Veed Lipsync 2.0 — 424cr ~150s</option>
-        <option value="veed-fabric-1-fast">Veed Fabric 1.0 — 1212cr ~120s</option>
-        <option value="sync-lipsync-v2-pro">Sync Lipsync 2 Pro — 661cr ~129s</option>
-        <option value="sync-lipsync-v3">Sync 3 — 1053cr ~129s</option>
-        <option value="bytedance-omnihuman-v1.5">OmniHuman 1.5 — 1267cr ~357s</option>
-        <option value="creatify-aurora">Creatify Aurora — 848cr ~180s</option>
-        <option value="heygen-avatar4">HeyGen Avatar 4 — 1212cr ~120s</option>
-      </optgroup>
-      <optgroup label="── Upscale / Enhance ──">
-        <option value="topaz-video-upscale">Topaz Video Upscale — 704cr ~147s</option>
       </optgroup>
     `;
     document.getElementById('promptBox').placeholder = 'Describe your video — motion, scene, camera movement, atmosphere…';
     onModelChange();
   } else {
     sel.innerHTML = `
-      <optgroup label="── Google Gemini ──">
-        <option value="gemini-2.5-flash-image">Google Nano Banana — 251cr ~16s</option>
-        <option value="gemini-3.1-flash-lite-image">Google Nano Banana 2 Lite — 167cr ~15s</option>
-        <option value="gemini-nano-banana-2.1">Google Nano Banana 2.1 — 167cr ~30s</option>
-        <option value="gemini-3.1-flash-image">Google Nano Banana 2 — 333cr ~30s</option>
-        <option value="gemini-3-pro-image">Google Nano Banana Pro — 1218cr ~56s</option>
-      </optgroup>
       <optgroup label="── GPT Image ──">
-        <option value="gpt-image-1.5">GPT Image 1.5 — 145cr ~34s</option>
-        <option value="gpt-image-1">GPT Image 1 — 158cr ~38s</option>
-        <option value="gpt-image-2">GPT Image 2 — 185cr ~30s</option>
         <option value="gpt-image-2.5-sunburst">GPT Image 2.5 Sunburst — 191cr ~30s</option>
-        <option value="gpt-image-2.5-flare">GPT Image 2.5 Flare — 191cr ~30s</option>
-      </optgroup>
-      <optgroup label="── FLUX ──">
-        <option value="flux-2-pro">FLUX.2 Pro — 182cr ~34s</option>
-        <option value="flux-1-kontext">FLUX.1 Kontext — 242cr ~20s</option>
-        <option value="flux-3-image">FLUX 3 Image — 291cr ~40s</option>
-      </optgroup>
-      <optgroup label="── Recraft ──">
-        <option value="recraft-v4.1-flash">Recraft V4.1 Flash — 48cr ~10s</option>
-        <option value="recraft-v4.1">Recraft V4.1 — 243cr ~20s</option>
-        <option value="recraft-v4">Recraft V4 — 242cr ~20s</option>
-      </optgroup>
-      <optgroup label="── Runway ──">
-        <option value="runway-gen4-image-turbo">Runway Gen-4 Image Turbo — 100cr ~25s</option>
-        <option value="runway-gen4-image">Runway Gen-4 Image — 248cr ~45s</option>
-      </optgroup>
-      <optgroup label="── ByteDance Seedream ──">
-        <option value="bytedance-seedream-4">Seedream 4 — 151cr ~31s</option>
-        <option value="bytedance-seedream-4.5">Seedream 4.5 — 242cr ~57s</option>
-        <option value="bytedance-seedream-5-lite">Seedream 5 Lite — 175cr ~50s</option>
-        <option value="bytedance-seedream-5-pro">Seedream 5 Pro — 818cr ~60s</option>
-      </optgroup>
-      <optgroup label="── Krea ──">
-        <option value="krea-2-medium">Krea 2 Medium — 182cr ~20s</option>
-        <option value="krea-2-large">Krea 2 Large — 364cr ~40s</option>
-      </optgroup>
-      <optgroup label="── Kling ──">
-        <option value="kling-omni-image">Kling O1 Image — 170cr ~47s</option>
-      </optgroup>
-      <optgroup label="── Other ──">
-        <option value="wan-2.5-preview-image">Wan 2.5 Image — 303cr ~57s</option>
-        <option value="topaz-image-upscale">Topaz Image Upscale — 485cr ~41s</option>
-        <option value="birefnet-v2-bg-removal">Background Removal — 30cr ~10s</option>
       </optgroup>
     `;
     document.getElementById('promptBox').placeholder = 'Describe your image, try @ for references or / for templates';
