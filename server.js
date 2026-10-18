@@ -37,28 +37,10 @@ async function bg(method, path, body) {
 // ── POST /api/generate/image ─────────────────────────────
 app.post("/api/generate/image", requireKey, async (req, res) => {
   try {
-    const {
-      prompt, model = "gemini-2.5-flash-image",
-      aspect_ratio = "16:9", generations_count = 1,
-      resolution, quality, output_format, creativity,
-      ref_url, images, negative_prompt,
-    } = req.body;
-
-    if (!prompt) return res.status(400).json({ error: "prompt is required" });
-
-    const body = { prompt, model, aspect_ratio, generations_count };
-    if (resolution)       body.resolution       = resolution;
-    if (quality)          body.quality          = quality;
-    if (output_format)    body.output_format    = output_format;
-    if (creativity)       body.creativity       = creativity;
-    if (ref_url)          body.ref_url          = ref_url;
-    if (images)           body.images           = images;
-    if (negative_prompt)  body.negative_prompt  = negative_prompt;
-
-    const job = await bg("POST", "/proxy/images/generate", body);
+    const job = await bg("POST", "/proxy/images/generate", req.body);
     res.json(job);
   } catch (err) {
-    console.error("[generate/image]", err.message);
+    console.error("[generate/image]", err.message, err.data);
     res.status(err.status || 500).json({ error: err.message, detail: err.data });
   }
 });
@@ -66,29 +48,10 @@ app.post("/api/generate/image", requireKey, async (req, res) => {
 // ── POST /api/generate/video ─────────────────────────────
 app.post("/api/generate/video", requireKey, async (req, res) => {
   try {
-    const {
-      prompt, model = "veo-3.1-fast-generate-001",
-      aspect_ratio = "16:9", duration_secs,
-      generate_audio = true, resolution,
-      start_image_url, end_image_url,
-      negative_prompt, reference_images,
-    } = req.body;
-
-    if (!prompt) return res.status(400).json({ error: "prompt is required" });
-
-    const body = { prompt, model, aspect_ratio };
-    if (duration_secs !== undefined) body.duration_secs    = duration_secs;
-    if (generate_audio !== undefined) body.generate_audio  = generate_audio;
-    if (resolution)        body.resolution        = resolution;
-    if (start_image_url)   body.start_image_url   = start_image_url;
-    if (end_image_url)     body.end_image_url     = end_image_url;
-    if (negative_prompt)   body.negative_prompt   = negative_prompt;
-    if (reference_images)  body.reference_images  = reference_images;
-
-    const job = await bg("POST", "/proxy/videos/generate", body);
+    const job = await bg("POST", "/proxy/videos/generate", req.body);
     res.json(job);
   } catch (err) {
-    console.error("[generate/video]", err.message);
+    console.error("[generate/video]", err.message, err.data);
     res.status(err.status || 500).json({ error: err.message, detail: err.data });
   }
 });
