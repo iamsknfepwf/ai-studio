@@ -1855,12 +1855,16 @@ async function generate() {
       if (!p.noPrompt) b.prompt = prompt || 'process';
       if (negPrompt) b.negative_prompt = negPrompt;
 
-      // Reference image — send raw base64 data URL directly (never asset_id)
+      // Reference image — auto-route to start_image_data for video models with startFrame
       if (pendingRefUrl) {
-        b.ref_image_data = pendingRefUrl;
+        if (isVideoMode && p.startFrame && !pendingStartFrame) {
+          b.start_image_data = pendingRefUrl;
+        } else {
+          b.ref_image_data = pendingRefUrl;
+        }
       }
 
-      // Start frame — send raw base64 data URL directly
+      // Start frame
       if (pendingStartFrame) b.start_image_data = pendingStartFrame;
 
       // Video input
@@ -2621,7 +2625,13 @@ async function mpGenerate() {
     const audTog = document.getElementById('mpAudioToggle');
     if (document.getElementById('mpAudioToggleSection').style.display !== 'none') body.generate_audio = audTog.checked;
     // Assets
-    if (mpPendingRef) body.ref_image_data = mpPendingRef;
+    if (mpPendingRef) {
+      if (isVid && p.startFrame && !mpPendingStartFrame) {
+        body.start_image_data = mpPendingRef;
+      } else {
+        body.ref_image_data = mpPendingRef;
+      }
+    }
     if (mpPendingStartFrame) body.start_image_data = mpPendingStartFrame;
     return body;
   }
