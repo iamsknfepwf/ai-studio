@@ -1371,7 +1371,7 @@ const MODEL_PARAMS = {
   'gpt-image-1.5':    { ref: 'optional', quality: ['low','medium','high'], background: true },
   'gpt-image-1':      { ref: 'optional', quality: ['low','medium','high'], background: true },
   'gpt-image-2':      { ref: 'optional', quality: ['low','medium','high'], resolution: ['1K','2K','4K'] },
-  'gpt-image-2.5-sunburst': { ref: 'optional', quality: ['low','medium','high','xhigh','max'], resolution: ['1K','2K','4K'] },
+  'gpt-image-2.5-sunburst': { ref: 'optional', refField: 'ref_asset_id', quality: ['low','medium','high','xhigh','max'], resolution: ['1K','2K','4K'] },
   'gpt-image-2.5-flare':    { ref: 'optional', quality: ['low','medium','high','xhigh','max'], resolution: ['1K','2K','4K'] },
   // ── FLUX ──
   'flux-2-pro':      { ref: 'optional', outputFormat: ['jpeg','png','webp'], resolution: ['720p','1080p','2K'] },
@@ -1857,13 +1857,12 @@ async function generate() {
 
       // Reference image
       if (pendingRefUrl) {
-        if (p.refField === 'single' || p.refField === 'reference_images') {
-          // single asset id fields
-          if (p.refField === 'reference_images') {
-            b.reference_images = [{ content_asset_id: pendingRefUrl }];
-          } else {
-            b.image = pendingRefUrl;
-          }
+        if (p.refField === 'ref_asset_id') {
+          b.ref_asset_id = pendingRefUrl;
+        } else if (p.refField === 'reference_images') {
+          b.reference_images = [{ content_asset_id: pendingRefUrl }];
+        } else if (p.refField === 'single') {
+          b.image = pendingRefUrl;
         } else {
           b.images = [{ content_asset_id: pendingRefUrl }];
         }
@@ -2619,8 +2618,9 @@ async function mpGenerate() {
     if (document.getElementById('mpAudioToggleSection').style.display !== 'none') body.generate_audio = audTog.checked;
     // Assets
     if (mpPendingRef) {
-      if (p.refField === 'single') body.image = mpPendingRef;
+      if (p.refField === 'ref_asset_id') body.ref_asset_id = mpPendingRef;
       else if (p.refField === 'reference_images') body.reference_images = [{content_asset_id: mpPendingRef}];
+      else if (p.refField === 'single') body.image = mpPendingRef;
       else body.images = [{content_asset_id: mpPendingRef}];
     }
     if (mpPendingStartFrame) body.start_frame = mpPendingStartFrame;
