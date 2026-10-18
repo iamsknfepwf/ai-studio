@@ -632,245 +632,228 @@ html, body { height: 100%; background: var(--bg0); color: var(--fg); font-family
 }
 
 /* ══════════════════════════════════════════
-   RESPONSIVE — 3-tier: mobile / tablet / desktop
-   Mobile-first base, min-width expansions
+   RESPONSIVE — mobile / tablet / desktop
    ══════════════════════════════════════════ */
 
-/* ── Base: always hidden on desktop ── */
-.mobile-bar    { display: none; }
-.mobile-overlay{ display: none; }
-.tab-toggle-btn{ display: none; }
+/* ── Always hidden on desktop ── */
+.mobile-bar     { display: none; }
+.mobile-overlay { display: none; }
+.tab-toggle-btn { display: none; }
+#mobilePanelWrap{ display: none; }
 
 /* ══ TABLET  640px – 1023px ══════════════ */
 @media (min-width: 640px) and (max-width: 1023px) {
-  /* Hide rail, shrink panel */
   .rail { display: none; }
-  .left-panel {
-    width: 260px;
-    flex-shrink: 0;
-    position: relative;
-    transition: width .22s ease, min-width .22s ease;
-    overflow: hidden;
-  }
-  .left-panel.tab-collapsed {
-    width: 0;
-    min-width: 0;
-    border-right: none;
-  }
-  /* Toggle button to show/hide sidebar on tablet */
+  .left-panel { width: 260px; transition: width .22s ease; overflow: hidden; }
+  .left-panel.tab-collapsed { width: 0; min-width: 0; border-right: none; }
   .tab-toggle-btn {
-    display: flex;
-    align-items: center; justify-content: center;
-    position: absolute;
-    top: 10px; left: 10px;
-    width: 34px; height: 34px;
-    z-index: 50;
-    background: var(--bg2);
-    border: 1px solid var(--border2);
-    border-radius: var(--r);
-    color: var(--fg2);
-    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    position: absolute; top: 10px; left: 10px;
+    width: 34px; height: 34px; z-index: 50;
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: var(--r); color: var(--fg2); cursor: pointer;
     transition: background .13s;
   }
   .tab-toggle-btn:hover { background: var(--bg3); }
-  /* Push topbar content right when toggle btn is shown */
   .topbar { padding-left: 54px; }
   .content-area { padding: 14px 16px 24px; }
-  .img-grid { grid-template-columns: 1fr 1fr; }
-  .img-row  { grid-template-columns: 1fr 1fr; }
-  /* 2-col grid on wider tablet */
 }
 @media (min-width: 900px) and (max-width: 1023px) {
   .left-panel { width: 280px; }
 }
 
-/* ══ MOBILE  < 640px ═════════════════════ */
+/* ══ MOBILE  < 640px ═════════════════════
+   Strategy: hide the desktop left-panel completely.
+   All settings live in #mobilePanelWrap — a true
+   position:fixed overlay that lives OUTSIDE .shell.
+   ════════════════════════════════════════ */
 @media (max-width: 639px) {
-  /* ── Shell: allow fixed children to escape overflow clip ── */
-  html, body { overflow: hidden; height: 100%; }
-  .shell {
-    flex-direction: row;
-    height: 100dvh;
-    /* CRITICAL: must NOT be overflow:hidden — that clips position:fixed children */
-    overflow: visible;
+  /* Desktop sidebar: hidden on mobile */
+  .rail        { display: none !important; }
+  .left-panel  { display: none !important; }
+
+  /* Shell fills screen, main takes all width */
+  .shell { height: 100dvh; overflow: hidden; }
+  .main  { flex: 1; width: 100%; min-width: 0; }
+
+  /* Topbar compact */
+  .topbar { padding: 0 10px; height: 44px; }
+  .topbar-tab { padding: 0 8px; font-size: 12px; }
+  .tb-text-btn > svg ~ * { display: none; }
+
+  /* Content area — bottom padding for nav bar */
+  .content-area {
+    padding: 10px 10px calc(66px + env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
   }
 
-  /* ── Rail: hide ── */
-  .rail { display: none; }
+  /* Image grid */
+  .img-grid { grid-template-columns: 1fr 1fr; }
+  .img-row  { grid-template-columns: 1fr 1fr; }
 
-  /* ── Left panel: taken OUT of flex flow, becomes fixed drawer ── */
-  .left-panel {
-    /* Remove from flex flow entirely */
-    position: fixed !important;
+  /* ── Mobile settings panel (outside .shell) ── */
+  #mobilePanelWrap {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    pointer-events: none;
+  }
+  /* Dark overlay */
+  #mobilePanelOverlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,.6);
+    opacity: 0;
+    transition: opacity .28s;
+  }
+  #mobilePanelWrap.open #mobilePanelOverlay {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  /* The actual panel */
+  #mobilePanelInner {
+    position: absolute;
     bottom: 0; left: 0; right: 0;
-    width: 100% !important;
-    height: min(92dvh, 700px) !important;
-    z-index: 120;
-    border-right: none;
-    border-top: 1px solid var(--border2);
+    height: min(90dvh, 680px);
+    background: var(--bg1);
     border-radius: 18px 18px 0 0;
-    /* Start hidden below viewport */
-    transform: translateY(110%) !important;
-    transition: transform .3s cubic-bezier(.32,0,.67,0);
-    box-shadow: 0 -12px 48px rgba(0,0,0,.6);
-    display: flex !important;
-    flex-direction: column;
+    border-top: 1px solid var(--border2);
+    box-shadow: 0 -12px 48px rgba(0,0,0,.7);
+    display: flex; flex-direction: column;
     overflow: hidden;
-    /* Prevent it from taking any flex space */
-    flex-shrink: 0;
-    flex-basis: 0 !important;
-    min-width: 0 !important;
-    max-width: 0 !important;
+    transform: translateY(100%);
+    transition: transform .3s cubic-bezier(.32,0,.67,0);
   }
-  .left-panel.mobile-open {
-    transform: translateY(0) !important;
+  #mobilePanelWrap.open #mobilePanelInner {
+    transform: translateY(0);
+    pointer-events: auto;
     transition: transform .3s cubic-bezier(.33,1,.68,1);
-    max-width: 100% !important;
   }
-  /* Drag handle pill */
-  .left-panel::before {
+  /* Drag handle */
+  #mobilePanelInner::before {
     content: '';
     display: block;
     width: 40px; height: 4px;
     border-radius: 99px;
     background: var(--border2);
-    margin: 12px auto 2px;
+    margin: 12px auto 0;
     flex-shrink: 0;
   }
-  /* Panel title gets extra top padding to not sit under handle */
-  .panel-title { padding-top: 6px; }
-  /* Scrollable fields area */
-  .panel-scroll {
-    flex: 1;
-    overflow-y: auto;
+  /* Panel header row with mode tabs */
+  .mp-header {
+    display: flex; align-items: center; gap: 0;
+    padding: 10px 14px 0;
+    flex-shrink: 0;
+  }
+  .mp-mode-btn {
+    flex: 1; padding: 8px 4px;
+    background: none; border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--fg3); font-size: 13px; font-weight: 500;
+    font-family: var(--font); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    transition: color .13s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mp-mode-btn.active { color: var(--fg); border-bottom-color: var(--fg); }
+  /* Scrollable fields */
+  .mp-scroll {
+    flex: 1; overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding: 0 16px 8px;
-    /* prevent rubber-band scroll from leaking to body */
     overscroll-behavior: contain;
+    padding: 12px 14px 8px;
+    display: flex; flex-direction: column; gap: 14px;
   }
-  /* Generate button pinned at bottom of drawer */
-  .generate-area {
+  /* Generate pinned at bottom */
+  .mp-generate {
     flex-shrink: 0;
-    padding: 10px 16px;
-    /* safe-area-inset for iPhone home bar */
-    padding-bottom: max(10px, env(safe-area-inset-bottom));
+    padding: 10px 14px;
+    padding-bottom: max(14px, env(safe-area-inset-bottom, 14px));
     border-top: 1px solid var(--border);
     background: var(--bg1);
   }
-
-  /* ── Overlay ── */
-  .mobile-overlay {
-    display: block;
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,.55);
-    z-index: 110;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .3s;
+  .mp-gen-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border: none; border-radius: var(--r2);
+    color: #fff; font-family: var(--font);
+    font-size: 15px; font-weight: 600;
+    padding: 13px 14px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    box-shadow: 0 2px 16px rgba(124,58,237,.4);
+    transition: opacity .13s, transform .1s;
     -webkit-tap-highlight-color: transparent;
   }
-  .mobile-overlay.visible { opacity: 1; pointer-events: auto; }
-
-  /* ── Main area: full width ── */
-  .main { flex: 1; min-height: 0; width: 100%; }
-
-  /* ── Topbar ── */
-  .topbar {
-    padding: 0 10px;
-    height: 44px;
+  .mp-gen-btn:active { opacity: .88; transform: scale(.98); }
+  /* Credits link in panel */
+  .mp-credits-row {
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    margin-top: 8px; cursor: pointer;
   }
-  .topbar-tab { padding: 0 10px; font-size: 12px; }
-  /* Hide text labels, keep icons */
-  .tb-text-btn > svg + * { display: none; }
-
-  /* ── Content area ── */
-  .content-area {
-    flex: 1;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    /* bottom padding = bottom bar height + safe area */
-    padding: 10px 10px calc(64px + env(safe-area-inset-bottom));
-  }
-
-  /* ── Image grid: 1 col on phones, 2 col on larger phones ── */
-  .img-grid { grid-template-columns: 1fr; }
-  .img-row  { grid-template-columns: 1fr; }
 
   /* ── Bottom navigation bar ── */
   .mobile-bar {
     display: flex;
     position: fixed;
     bottom: 0; left: 0; right: 0;
-    /* height adapts to safe area (iPhone home bar) */
-    height: calc(58px + env(safe-area-inset-bottom));
-    padding-bottom: env(safe-area-inset-bottom);
+    height: calc(58px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     background: var(--bg1);
     border-top: 1px solid var(--border);
     align-items: center;
     padding-left: 6px; padding-right: 6px;
-    gap: 4px;
+    gap: 3px;
     z-index: 100;
-    /* hardware-accelerated so it never flickers */
-    -webkit-transform: translateZ(0);
     transform: translateZ(0);
   }
   .mobile-bar-btn {
-    flex: 1;
+    flex: 1; min-height: 44px; min-width: 0;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 3px;
     background: none; border: none;
     color: var(--fg3); font-size: 10px; font-family: var(--font);
-    padding: 6px 2px;
-    border-radius: var(--r);
-    cursor: pointer;
-    min-width: 0;
-    /* larger tap target */
-    min-height: 44px;
+    border-radius: var(--r); cursor: pointer;
     transition: color .13s, background .13s;
     -webkit-tap-highlight-color: transparent;
   }
   .mobile-bar-btn.active { color: var(--fg); background: var(--bg3); }
-
-  /* ── Generate button: prominent center CTA ── */
   .mobile-gen-btn {
-    flex: 2.2;
-    height: 42px;
+    flex: 2.4; height: 42px;
     background: linear-gradient(135deg, var(--accent2), var(--accent));
-    border: none;
-    border-radius: var(--r2);
-    color: #fff;
-    font-family: var(--font);
+    border: none; border-radius: var(--r2);
+    color: #fff; font-family: var(--font);
     font-size: 14px; font-weight: 600;
     display: flex; align-items: center; justify-content: center; gap: 6px;
     cursor: pointer;
-    box-shadow: 0 2px 12px rgba(124,58,237,.35);
+    box-shadow: 0 2px 10px rgba(124,58,237,.35);
     transition: opacity .13s, transform .1s;
     -webkit-tap-highlight-color: transparent;
   }
-  .mobile-gen-btn:active { opacity: .88; transform: scale(.97); }
-
-  /* Settings / panel toggle */
+  .mobile-gen-btn:active { opacity: .85; transform: scale(.96); }
   .mobile-settings-btn {
-    flex: 1;
+    flex: 1; min-height: 44px; min-width: 0;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 3px;
     background: none; border: none;
     color: var(--fg3); font-size: 10px; font-family: var(--font);
-    padding: 6px 2px;
-    border-radius: var(--r);
-    cursor: pointer;
-    min-height: 44px;
-    transition: color .13s, background .13s;
+    border-radius: var(--r); cursor: pointer;
     -webkit-tap-highlight-color: transparent;
   }
   .mobile-settings-btn.open { color: var(--accent); }
-}
 
-/* ── Large phones: 2-col grid ── */
-@media (min-width: 430px) and (max-width: 639px) {
-  .img-grid { grid-template-columns: 1fr 1fr; }
-  .img-row  { grid-template-columns: 1fr 1fr; }
+  /* Reuse existing field styles inside mobile panel */
+  .mp-scroll .field-label,
+  .mp-scroll .model-select,
+  .mp-scroll .prompt-box,
+  .mp-scroll .param-select,
+  .mp-scroll .ref-upload-label,
+  .mp-scroll .controls-row,
+  .mp-scroll .ai-toggle-row,
+  .mp-scroll .duration-row,
+  .mp-scroll .ref-header { /* inherit — already defined globally */ }
 }
 </style>
 </head>
@@ -1213,32 +1196,145 @@ html, body { height: 100%; background: var(--bg0); color: var(--fg); font-family
 
 </div>
 
-<!-- Mobile overlay (behind drawer) -->
-<div class="mobile-overlay" id="mobileOverlay" onclick="closeMobilePanel()"></div>
+<!-- ── Mobile settings panel (outside .shell, true fixed overlay) ── -->
+<div id="mobilePanelWrap">
+  <div id="mobilePanelOverlay" onclick="closeMobilePanel()"></div>
+  <div id="mobilePanelInner">
+    <!-- Mode tabs -->
+    <div class="mp-header">
+      <button class="mp-mode-btn active" id="mpImage" onclick="mpSetMode('image')">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
+        Image
+      </button>
+      <button class="mp-mode-btn" id="mpVideo" onclick="mpSetMode('video')">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polygon points="23,7 16,12 23,17 23,7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+        Video
+      </button>
+    </div>
+    <!-- Scrollable fields — mirrors the desktop panel -->
+    <div class="mp-scroll" id="mpScroll">
+      <div>
+        <div class="field-label">Model</div>
+        <select class="model-select" id="mpModelSel" onchange="mpOnModelChange()"></select>
+      </div>
+      <!-- Reference image -->
+      <div id="mpRefSection">
+        <div class="ref-header">
+          <div class="field-label" style="margin:0">Reference Image</div>
+          <span class="ref-count" id="mpRefCount">none</span>
+        </div>
+        <div id="mpRefPreview" style="display:none;margin-bottom:6px;position:relative">
+          <img id="mpRefThumb" src="" style="width:100%;border-radius:var(--r);border:1px solid var(--border2);object-fit:cover;max-height:90px">
+          <button onclick="mpClearRef()" style="position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.6);border:none;color:#fff;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center">×</button>
+        </div>
+        <label class="ref-upload-label" id="mpRefUploadLabel">
+          <input type="file" id="mpRefFileInput" accept="image/*" style="display:none" onchange="mpHandleRefUpload(this)">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Upload reference image
+        </label>
+      </div>
+      <!-- Prompt -->
+      <div id="mpPromptSection">
+        <div class="field-label">Prompt</div>
+        <textarea class="prompt-box" id="mpPromptBox" placeholder="Describe your image…" rows="4"></textarea>
+      </div>
+      <!-- Count + ratio (image only) -->
+      <div id="mpSettingsRow">
+        <div class="field-label">Settings</div>
+        <div class="controls-row">
+          <div class="count-ctrl">
+            <button class="count-btn" onclick="mpAdjustCount(-1)">−</button>
+            <span class="count-val" id="mpCountVal">4</span>
+            <button class="count-btn" onclick="mpAdjustCount(1)">+</button>
+          </div>
+          <button class="ratio-btn" id="mpRatioBtn" onclick="mpCycleRatio()">
+            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="14" rx="1"/></svg>
+            <span id="mpRatioVal">16:9</span>
+          </button>
+        </div>
+      </div>
+      <!-- Quality -->
+      <div id="mpQualitySection" style="display:none">
+        <div class="field-label">Quality</div>
+        <select class="param-select" id="mpQualitySel"></select>
+      </div>
+      <!-- Resolution -->
+      <div id="mpResolutionSection" style="display:none">
+        <div class="field-label">Resolution</div>
+        <select class="param-select" id="mpResolutionSel"><option value="">Auto</option></select>
+      </div>
+      <!-- Duration -->
+      <div id="mpDurationSection" style="display:none">
+        <div class="field-label">Duration</div>
+        <div class="duration-row">
+          <input type="range" class="duration-slider" id="mpDurationSlider" min="4" max="10" step="1" value="5" oninput="document.getElementById('mpDurationVal').textContent=this.value+'s'">
+          <span class="duration-val" id="mpDurationVal">5s</span>
+        </div>
+      </div>
+      <!-- Generate audio -->
+      <div id="mpAudioToggleSection" style="display:none">
+        <div class="ai-toggle-row">
+          <label class="toggle">
+            <input type="checkbox" id="mpAudioToggle">
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+          <span class="toggle-label">Generate Audio</span>
+        </div>
+      </div>
+      <!-- Start frame -->
+      <div id="mpStartFrameSection" style="display:none">
+        <div class="ref-header">
+          <div class="field-label" style="margin:0" id="mpStartFrameLabel">Start Frame</div>
+          <span class="ref-count" id="mpStartFrameCount">none</span>
+        </div>
+        <label class="ref-upload-label" id="mpStartFrameUploadLabel">
+          <input type="file" id="mpStartFrameInput" accept="image/*" style="display:none" onchange="mpHandleStartFrame(this)">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Upload start frame
+        </label>
+      </div>
+      <!-- Negative prompt -->
+      <div>
+        <div class="field-label" style="cursor:pointer;display:flex;align-items:center;gap:4px" onclick="mpToggleNeg()">
+          <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" id="mpNegArrow"><polyline points="9,18 15,12 9,6"/></svg>
+          Negative Prompt
+        </div>
+        <textarea class="prompt-box" id="mpNegBox" placeholder="Things to avoid…" rows="2" style="display:none;margin-top:6px"></textarea>
+      </div>
+    </div>
+    <!-- Generate button pinned at bottom -->
+    <div class="mp-generate">
+      <button class="mp-gen-btn" onclick="mpGenerate()">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/></svg>
+        Generate
+      </button>
+      <div class="mp-credits-row" onclick="showCredits()">
+        <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:var(--accent)"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/></svg>
+        <span id="mpCreditsBadge" style="font-size:11px;color:var(--accent);font-weight:500">Check credits</span>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Mobile bottom bar -->
 <div class="mobile-bar" id="mobileBar">
-  <!-- Image -->
   <button class="mobile-bar-btn active" id="mbarImage" onclick="mobileSetMode('image')">
     <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
     Image
   </button>
-  <!-- Video -->
   <button class="mobile-bar-btn" id="mbarVideo" onclick="mobileSetMode('video')">
     <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><polygon points="23,7 16,12 23,17 23,7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
     Video
   </button>
-  <!-- Generate button -->
-  <button class="mobile-gen-btn" onclick="generate()">
+  <button class="mobile-gen-btn" onclick="mpGenerate()">
     <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/></svg>
     Generate
   </button>
-  <!-- Credits -->
   <button class="mobile-bar-btn" onclick="showCredits()">
     <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/></svg>
     Credits
   </button>
-  <!-- Settings / panel toggle -->
   <button class="mobile-settings-btn" id="mobileSettingsBtn" onclick="toggleMobilePanel()">
     <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     Settings
@@ -2032,7 +2128,7 @@ function switchMode(mode) {
 // ── Rail mode switch ──────────────────────
 function setRailMode(mode, btn) {
   document.querySelectorAll('.rail-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
 
   const titleText = document.getElementById('panelTitleText');
   const titleIcon = document.querySelector('#panelTitle svg');
@@ -2288,59 +2384,288 @@ loadGroups();
 renderGroups();
 
 // ── Responsive helpers ────────────────────
-function isMobile()  { return window.innerWidth < 640; }
-function isTablet()  { return window.innerWidth >= 640 && window.innerWidth < 1024; }
+function isMobile() { return window.innerWidth < 640; }
 
-// ── Mobile: bottom drawer ─────────────────
+// ── Tablet sidebar toggle ─────────────────
+function toggleTabPanel() {
+  document.querySelector('.left-panel').classList.toggle('tab-collapsed');
+}
+
+// ── Mobile panel open/close ───────────────
 function toggleMobilePanel() {
-  const panel   = document.querySelector('.left-panel');
-  const overlay = document.getElementById('mobileOverlay');
-  const btn     = document.getElementById('mobileSettingsBtn');
-  const opening = !panel.classList.contains('mobile-open');
-  panel.classList.toggle('mobile-open', opening);
-  overlay.classList.toggle('visible', opening);
+  const wrap = document.getElementById('mobilePanelWrap');
+  const btn  = document.getElementById('mobileSettingsBtn');
+  const opening = !wrap.classList.contains('open');
+  wrap.classList.toggle('open', opening);
   if (btn) btn.classList.toggle('open', opening);
+  if (opening) mpSyncFromDesktop();
 }
 
 function closeMobilePanel() {
-  document.querySelector('.left-panel').classList.remove('mobile-open');
-  document.getElementById('mobileOverlay').classList.remove('visible');
+  document.getElementById('mobilePanelWrap').classList.remove('open');
   const btn = document.getElementById('mobileSettingsBtn');
   if (btn) btn.classList.remove('open');
 }
 
+// ── Mobile: set image/video mode ─────────
+let mpMode = 'image';
+let mpCount = 4;
+let mpRatioIdx = 1;
+const mpRatios = ['1:1','16:9','9:16','3:4','4:3','21:9'];
+let mpPendingRef = null;
+let mpPendingStartFrame = null;
+let mpNegOpen = false;
+
+function mpSetMode(mode) {
+  mpMode = mode;
+  // Update tab buttons
+  document.getElementById('mpImage').classList.toggle('active', mode === 'image');
+  document.getElementById('mpVideo').classList.toggle('active', mode === 'video');
+  // Also update bottom bar
+  document.getElementById('mbarImage').classList.toggle('active', mode === 'image');
+  document.getElementById('mbarVideo').classList.toggle('active', mode === 'video');
+  // Populate model dropdown
+  mpPopulateModels(mode);
+  mpOnModelChange();
+}
+
 function mobileSetMode(mode) {
-  document.querySelectorAll('.mobile-bar-btn').forEach(b => b.classList.remove('active'));
-  const target = document.getElementById(mode === 'image' ? 'mbarImage' : 'mbarVideo');
-  if (target) target.classList.add('active');
-  setRailMode(mode, null);
-  closeMobilePanel();
+  mpSetMode(mode);
+  toggleMobilePanel();
 }
 
-// ── Tablet: collapsible sidebar ───────────
-function toggleTabPanel() {
-  const panel = document.querySelector('.left-panel');
-  panel.classList.toggle('tab-collapsed');
+function mpPopulateModels(mode) {
+  const sel = document.getElementById('mpModelSel');
+  if (mode === 'video') {
+    sel.innerHTML = `
+      <optgroup label="── ByteDance Seedance ──">
+        <option value="bytedance-seedance-v1.5-pro">Seedance 1.5 Pro — 287cr ~119s</option>
+        <option value="bytedance-seedance-v1-pro">Seedance 1 Pro — 426cr ~97s</option>
+        <option value="bytedance-seedance-v2-mini">Seedance 2.0 Mini — 1707cr ~70s</option>
+        <option value="bytedance-seedance-v2-fast">Seedance 2.0 Fast — 2612cr ~90s</option>
+        <option value="bytedance-seedance-v2">Seedance 2.0 — 3258cr ~150s</option>
+        <option value="bytedance-seedance-v2.5">Seedance 2.5 — 4980cr ~150s</option>
+      </optgroup>`;
+  } else {
+    sel.innerHTML = `
+      <optgroup label="── GPT Image ──">
+        <option value="gpt-image-2.5-sunburst">GPT Image 2.5 Sunburst — 191cr ~30s</option>
+      </optgroup>`;
+  }
 }
 
-// Close drawer on generate (mobile)
-const _origGenerate = generate;
-generate = async function() {
-  if (isMobile()) closeMobilePanel();
-  return _origGenerate.apply(this, arguments);
+function mpOnModelChange() {
+  const model = document.getElementById('mpModelSel').value;
+  const p = MODEL_PARAMS[model] || {};
+  const show = (id, vis) => { const el = document.getElementById(id); if(el) el.style.display = vis ? '' : 'none'; };
+
+  // Reference image
+  show('mpRefSection', !!(p.ref));
+  const refLbl = document.getElementById('mpRefUploadLabel');
+  if (refLbl) refLbl.classList.toggle('required', p.ref === 'required');
+
+  // Prompt
+  show('mpPromptSection', !p.noPrompt);
+
+  // Count/ratio row — hide for video
+  const isVid = !!(p.startFrame || p.videoInput || p.durationRange || p.duration);
+  show('mpSettingsRow', !isVid);
+
+  // Quality
+  if (p.quality) {
+    show('mpQualitySection', true);
+    document.getElementById('mpQualitySel').innerHTML =
+      p.quality.map(q => `<option value="${q}">${q.charAt(0).toUpperCase()+q.slice(1)}</option>`).join('');
+  } else { show('mpQualitySection', false); }
+
+  // Resolution
+  if (p.resolution && p.resolution.length) {
+    show('mpResolutionSection', true);
+    document.getElementById('mpResolutionSel').innerHTML =
+      `<option value="">Auto</option>` + p.resolution.map(r => `<option value="${r}">${r}</option>`).join('');
+  } else { show('mpResolutionSection', false); }
+
+  // Duration
+  if (p.duration || p.durationRange) {
+    show('mpDurationSection', true);
+    const sl = document.getElementById('mpDurationSlider');
+    const vl = document.getElementById('mpDurationVal');
+    const mn = p.duration ? p.duration[0] : p.durationRange[0];
+    const mx = p.duration ? p.duration[p.duration.length-1] : p.durationRange[1];
+    sl.min = mn; sl.max = mx; sl.value = mn;
+    vl.textContent = mn + 's';
+  } else { show('mpDurationSection', false); }
+
+  // Audio toggle
+  show('mpAudioToggleSection', !!p.generateAudio);
+
+  // Start frame
+  show('mpStartFrameSection', !!(p.startFrame));
+  if (p.startFrame) {
+    const lbl = document.getElementById('mpStartFrameUploadLabel');
+    if (lbl) lbl.classList.toggle('required', p.startFrame === 'required');
+  }
+}
+
+function mpAdjustCount(d) {
+  mpCount = Math.max(1, Math.min(8, mpCount + d));
+  document.getElementById('mpCountVal').textContent = mpCount;
+}
+
+function mpCycleRatio() {
+  mpRatioIdx = (mpRatioIdx + 1) % mpRatios.length;
+  document.getElementById('mpRatioVal').textContent = mpRatios[mpRatioIdx];
+}
+
+function mpToggleNeg() {
+  mpNegOpen = !mpNegOpen;
+  document.getElementById('mpNegBox').style.display = mpNegOpen ? '' : 'none';
+  document.getElementById('mpNegArrow').style.transform = mpNegOpen ? 'rotate(90deg)' : '';
+}
+
+async function mpHandleRefUpload(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('mpRefThumb').src = e.target.result;
+    document.getElementById('mpRefPreview').style.display = 'block';
+    document.getElementById('mpRefCount').textContent = 'uploading…';
+  };
+  reader.readAsDataURL(file);
+  try {
+    const b64 = await fileToB64(file);
+    const data = await uploadAsset({ image_data: b64, mime_type: file.type });
+    mpPendingRef = data.asset_id;
+    document.getElementById('mpRefCount').textContent = 'ready ✓';
+    showToast('Reference uploaded ✓');
+  } catch(e) {
+    document.getElementById('mpRefCount').textContent = 'failed';
+    showToast('Upload error: ' + e.message);
+  }
+}
+
+function mpClearRef() {
+  mpPendingRef = null;
+  document.getElementById('mpRefPreview').style.display = 'none';
+  document.getElementById('mpRefCount').textContent = 'none';
+  document.getElementById('mpRefFileInput').value = '';
+}
+
+async function mpHandleStartFrame(input) {
+  const file = input.files[0]; if (!file) return;
+  document.getElementById('mpStartFrameCount').textContent = 'uploading…';
+  try {
+    const b64 = await fileToB64(file);
+    const data = await uploadAsset({ image_data: b64, mime_type: file.type });
+    mpPendingStartFrame = data.asset_id;
+    document.getElementById('mpStartFrameCount').textContent = file.name.slice(0,18) + ' ✓';
+    showToast('Start frame uploaded ✓');
+  } catch(e) {
+    document.getElementById('mpStartFrameCount').textContent = 'failed';
+    showToast('Upload error: ' + e.message);
+  }
+}
+
+// Sync credits badge to mobile panel
+function mpSyncCredits(text) {
+  const b = document.getElementById('mpCreditsBadge');
+  if (b) b.textContent = text;
+}
+
+// Wrap showCredits to also update mp badge
+const _origShowCredits = showCredits;
+showCredits = async function() {
+  const res = await _origShowCredits.apply(this, arguments);
+  const badge = document.getElementById('creditsBadge');
+  if (badge) mpSyncCredits(badge.textContent);
+  return res;
 };
 
-// On resize: clean up state to avoid stuck classes
-let _lastBreak = '';
-window.addEventListener('resize', () => {
-  const cur = isMobile() ? 'mobile' : isTablet() ? 'tablet' : 'desktop';
-  if (cur === _lastBreak) return;
-  _lastBreak = cur;
-  // Reset any open states when switching breakpoints
+// ── Mobile Generate ───────────────────────
+async function mpGenerate() {
+  const model  = document.getElementById('mpModelSel').value;
+  const prompt = document.getElementById('mpPromptBox').value.trim();
+  const neg    = document.getElementById('mpNegBox').value.trim();
+  const p      = MODEL_PARAMS[model] || {};
+
+  // Validate required fields
+  if (p.ref === 'required' && !mpPendingRef) { showToast('This model requires a reference image'); return; }
+  if (p.startFrame === 'required' && !mpPendingStartFrame) { showToast('This model requires a start frame'); return; }
+  if (!p.noPrompt && !prompt) { showToast('Enter a prompt'); return; }
+
   closeMobilePanel();
-  const panel = document.querySelector('.left-panel');
-  if (cur !== 'tablet') panel.classList.remove('tab-collapsed');
-});
+
+  const isVid = !!(p.startFrame || p.videoInput || p.durationRange || p.duration);
+  const endpoint = isVid ? '/api/generate/video' : '/api/generate/image';
+  const jobCount = isVid ? 1 : mpCount;
+
+  function buildMpBody() {
+    const body = {};
+    body.model = model;
+    if (!p.noPrompt && prompt) body.prompt = prompt;
+    if (neg) body.negative_prompt = neg;
+    // Ratio / resolution
+    const resSel = document.getElementById('mpResolutionSel');
+    if (resSel && resSel.value) body.resolution = resSel.value;
+    else if (!isVid) { body.aspect_ratio = mpRatios[mpRatioIdx]; }
+    // Quality
+    const qSel = document.getElementById('mpQualitySel');
+    if (qSel && document.getElementById('mpQualitySection').style.display !== 'none') body.quality = qSel.value;
+    // Duration
+    const durSl = document.getElementById('mpDurationSlider');
+    if (document.getElementById('mpDurationSection').style.display !== 'none') body.duration_secs = parseInt(durSl.value);
+    // Audio
+    const audTog = document.getElementById('mpAudioToggle');
+    if (document.getElementById('mpAudioToggleSection').style.display !== 'none') body.generate_audio = audTog.checked;
+    // Assets
+    if (mpPendingRef) {
+      if (p.refField === 'single') body.image = mpPendingRef;
+      else if (p.refField === 'reference_images') body.reference_images = [{content_asset_id: mpPendingRef}];
+      else body.images = [{content_asset_id: mpPendingRef}];
+    }
+    if (mpPendingStartFrame) body.start_frame = mpPendingStartFrame;
+    return body;
+  }
+
+  // Add placeholder cards
+  const gid  = nextId++;
+  const imgs = Array.from({length: jobCount}, (_, i) => ({ cid: `${gid}-${i}`, generating: true }));
+  groups.unshift({ id: gid, prompt, model, imgs, ts: Date.now() });
+  renderGroups();
+
+  const submits = await Promise.all(
+    Array.from({length: jobCount}, () =>
+      fetch(`${API}${endpoint}`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(buildMpBody())
+      }).then(r => r.json()).catch(e => ({ error: e.message }))
+    )
+  );
+
+  const g = groups.find(x => x.id === gid);
+  if (!g) return;
+
+  submits.forEach((submitData, idx) => {
+    if (submitData.error || !submitData.job_id) {
+      g.imgs[idx] = { cid: g.imgs[idx].cid, error: submitData.error || (submitData.detail || 'Submit failed') };
+      renderGroups(); saveGroups(); return;
+    }
+    pollJob(submitData.job_id, (result) => {
+      const url  = result.images?.[0]?.url || result.image_url || result.url || null;
+      const vurl = result.video_url || result.videos?.[0]?.url || null;
+      g.imgs[idx] = { cid: g.imgs[idx].cid, realUrl: url, fullUrl: url, videoUrl: vurl, res: result.resolution || model, generating: false };
+      renderGroups(); saveGroups();
+    }, (err) => {
+      g.imgs[idx] = { cid: g.imgs[idx].cid, error: err, generating: false };
+      renderGroups(); saveGroups();
+    });
+  });
+}
+
+// ── Init mobile panel ─────────────────────
+mpPopulateModels('image');
+mpOnModelChange();
 </script>
 </body>
 </html>
