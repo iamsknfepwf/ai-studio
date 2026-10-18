@@ -1816,20 +1816,6 @@ async function generate() {
   const negPrompt = document.getElementById('negBox').value.trim();
 
   const gid = nextId++;
-  const n = Math.min(count, 4);
-
-  // Placeholder cards while generating
-  const placeholderImgs = Array.from({length: n}, (_, i) => ({
-    cl: 'g1', res: '…', generating: true, cid: `gen-${gid}-${i}`
-  }));
-  groups.unshift({ id: gid, prompt, imgs: placeholderImgs, ratio, model, speed: turbo ? 'turbo' : 'standard', ago: 'just now' });
-  renderGroups();
-
-  const resetBtn = () => {
-    clearInterval(timer);
-    genRunning = false;
-    btn.innerHTML = '<span>Generate</span><span><svg class="gen-btn-icon" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/></svg></span>';
-  };
 
   try {
     const videoModelIds = new Set([
@@ -1845,6 +1831,20 @@ async function generate() {
       )
     ]);
     const isVideoMode = videoModelIds.has(model);
+    const n = isVideoMode ? 1 : Math.min(count, 4);
+
+  // Placeholder cards while generating
+  const placeholderImgs = Array.from({length: n}, (_, i) => ({
+    cl: 'g1', res: '…', generating: true, cid: `gen-${gid}-${i}`
+  }));
+  groups.unshift({ id: gid, prompt, imgs: placeholderImgs, ratio, model, speed: turbo ? 'turbo' : 'standard', ago: 'just now' });
+  renderGroups();
+
+  const resetBtn = () => {
+    clearInterval(timer);
+    genRunning = false;
+    btn.innerHTML = '<span>Generate</span><span><svg class="gen-btn-icon" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/></svg></span>';
+  };
     const endpoint = isVideoMode ? '/api/generate/video' : '/api/generate/image';
 
     const buildBody = () => {
