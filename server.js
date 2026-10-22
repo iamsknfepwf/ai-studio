@@ -6,6 +6,7 @@ const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 3000;
 const BRIDGEGATE_BASE = "https://bridgegate-frontend.onrender.com";
+const BRIDGEGATE_VOICE_BASE = "https://bridgegate-api.onrender.com";
 const API_KEY = process.env.BRIDGEGATE_KEY;
 
 app.use(cors());
@@ -89,6 +90,87 @@ app.post("/api/upload", requireKey, async (req, res) => {
     res.json(data);
   } catch (err) {
     console.error("[upload]", err.message);
+    res.status(err.status || 500).json({ error: err.message });
+  }
+});
+
+// ── Voice API helper (different base URL + JWT auth) ─────
+async function bgVoice(method, path, body) {
+  // Get a short-lived JWT using the API key
+  const tokenRes = await fetch(`${BRIDGEGATE_VOICE_BASE}/v1/auth/token`, {
+    headers: { "X-API-Key": API_KEY }
+  });
+  if (!tokenRes.ok) {
+    const err = await tokenRes.json().catch(() => ({}));
+    throw Object.assign(new Error(err.error || "Failed to get voice token"), { status: tokenRes.status, data: err });
+  }
+  const { token } = await tokenRes.json();
+
+  const opts = {
+    method,
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(`${BRIDGEGATE_VOICE_BASE}${path}`, opts);
+  const data = await res.json().catch(() => res.blob());
+  if (!res.ok) throw Object.assign(new Error(data.error || "Voice API error"), { status: res.status, data });
+  return data;
+}
+
+// ── POST /api/tts/generate ────────────────────────────────
+app.post("/api/tts/generate", requireKey, async (req, res) => {
+  try {
+    const data = await bgVoice("POST", "/v1/tts/generate", req.body);
+    res.json(data);
+  } catch (err) {
+    console.error("[tts/generate]", err.message, err.data);
+    res.status(err.status || 500).json({ error: err.message, detail: err.data });
+  }
+});
+
+// ── POST /api/sfx/generate ────────────────────────────────
+app.post("/api/sfx/generate", requireKey, async (req, res) => {
+  try {
+    const data = await bgVoice("POST", "/v1/sound-effects/generate", req.body);
+    res.json(data);
+  } catch (err) {
+    console.error("[sfx/generate]", err.message, err.data);
+    res.status(err.status || 500).json({ error: err.message, detail: err.data });
+  }
+});
+
+// ── POST /api/sts ──────────────────────────────────────────
+app.post("/api/sts", requireKey, async (req, res) => {
+  try {
+    const data = await bgVoice("POST", "/v1/speech-to-speech", req.body);
+    res.json(data);
+  } catch (err) {
+    console.error("[sts]", err.message, err.data);
+    res.status(err.status || 500).json({ error: err.message, detail: err.data });
+  }
+});
+
+// ── POST /api/audio-isolation ─────────────────────────────
+app.post("/api/audio-isolation", requireKey, async (req, res) => {
+  try {
+    const data = await bgVoice("POST", "/v1/audio-isolation", req.body);
+    res.json(data);
+  } catch (err) {
+    console.error("[audio-isolation]", err.message, err.data);
+    res.status(err.status || 500).json({ error: err.message, detail: err.data });
+  }
+});
+
+// ── GET /api/voices ───────────────────────────────────────
+app.get("/api/voices", requireKey, async (req, res) => {
+  try {
+    const data = await bgVoice("GET", "/v1/voices");
+    res.json(data);
+  } catch (err) {
+    console.error("[voices]", err.message);
     res.status(err.status || 500).json({ error: err.message });
   }
 });
