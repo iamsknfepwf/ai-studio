@@ -1222,153 +1222,6 @@ html, body { height: 100%; background: var(--bg0); color: var(--fg); font-family
 
   </aside>
 
-  <!-- ── Audio workspace panel ── -->
-  <aside class="left-panel" id="audioPanel">
-    <div class="global-topbar">
-      <div class="project-chip"><div class="project-dot"></div><span>Audio Studio</span></div>
-    </div>
-    <div class="panel-title">
-      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-      <span>Audio / Voice</span>
-    </div>
-
-    <div id="audioPanelInner">
-      <!-- Sub-tabs -->
-      <div class="audio-sub-tabs">
-        <button class="audio-sub-tab active" onclick="audioSubTab('tts',this)">Text to Speech</button>
-        <button class="audio-sub-tab" onclick="audioSubTab('sfx',this)">Sound FX</button>
-        <button class="audio-sub-tab" onclick="audioSubTab('sts',this)">Voice Changer</button>
-        <button class="audio-sub-tab" onclick="audioSubTab('isolation',this)">Isolation</button>
-      </div>
-
-      <!-- TTS -->
-      <div class="audio-section active" id="audioTts">
-        <div class="field-label">Text</div>
-        <textarea id="ttsText" class="prompt-box" rows="5" placeholder="Enter text to convert to speech…" style="resize:vertical;min-height:80px"></textarea>
-        <div class="char-count" id="ttsCharCount" style="font-size:10px;color:var(--fg3);text-align:right">0 / 10,000</div>
-
-        <div class="field-label">Voice</div>
-        <div class="voice-select-wrap">
-          <select class="param-select" id="ttsVoiceSelect">
-            <option value="CwhRBWXzGAHq8TQ4Fs17">Roger — Laid-Back, Casual, Resonant</option>
-            <option value="21m00Tcm4TlvDq8ikWAM">Rachel — Calm, American</option>
-            <option value="ErXwobaYiN019PkySvjV">Antoni — Well-Rounded</option>
-            <option value="VR6AewLTigWG4xSOukaG">Arnold — Crisp</option>
-            <option value="pNInz6obpgDQGcFmaJgB">Adam — Deep</option>
-            <option value="yoZ06aMxZJJ28mfd3POQ">Sam — Raspy</option>
-          </select>
-        </div>
-        <button class="field-label" onclick="loadVoices()" style="background:none;border:none;color:var(--accent);cursor:pointer;padding:0;font-size:11px;text-align:left">↻ Load all voices from API</button>
-
-        <div class="field-label">Model</div>
-        <select class="param-select" id="ttsModelSelect">
-          <option value="eleven_v4">Eleven v4 — Fastest, 90+ languages</option>
-          <option value="eleven_v4_turbo">Eleven v4 Turbo — Low latency</option>
-          <option value="eleven_v3">Eleven v3 — Highly expressive</option>
-          <option value="eleven_multilingual_v2">Multilingual v2 — Most consistent</option>
-          <option value="eleven_turbo_v2_5">Turbo v2.5 — High quality + low latency</option>
-          <option value="eleven_flash_v2_5">Flash v2.5 — Ultra-low latency</option>
-        </select>
-
-        <div class="stability-row">
-          <div class="field-label" style="margin-bottom:0">Stability <span id="stabilityVal" style="color:var(--fg3)">0.50</span></div>
-          <div class="stability-labels"><span>More Variable</span><span>More Stable</span></div>
-          <input type="range" class="stability-slider" id="stabilitySlider" min="0" max="1" step="0.01" value="0.5" oninput="document.getElementById('stabilityVal').textContent=parseFloat(this.value).toFixed(2)">
-        </div>
-
-        <div class="stability-row">
-          <div class="field-label" style="margin-bottom:0">Similarity <span id="similarityVal" style="color:var(--fg3)">0.75</span></div>
-          <div class="stability-labels"><span>Low</span><span>High</span></div>
-          <input type="range" class="stability-slider" id="similaritySlider" min="0" max="1" step="0.01" value="0.75" oninput="document.getElementById('similarityVal').textContent=parseFloat(this.value).toFixed(2)">
-        </div>
-
-        <div class="stability-row">
-          <div class="field-label" style="margin-bottom:0">Style <span id="styleVal" style="color:var(--fg3)">0.00</span></div>
-          <div class="stability-labels"><span>None</span><span>Exaggerated</span></div>
-          <input type="range" class="stability-slider" id="styleSlider" min="0" max="1" step="0.01" value="0" oninput="document.getElementById('styleVal').textContent=parseFloat(this.value).toFixed(2)">
-        </div>
-
-        <div class="ai-toggle-row">
-          <span class="field-label" style="margin:0">Speaker Boost</span>
-          <label class="ai-toggle"><input type="checkbox" id="speakerBoost" checked><span class="ai-track"><span class="ai-thumb"></span></span></label>
-        </div>
-
-        <button class="audio-gen-btn" id="ttsGenBtn" onclick="generateTts()">
-          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polygon points="11,5 6,9 2,9 2,15 6,15 11,19 11,5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-          Generate Speech
-        </button>
-      </div>
-
-      <!-- Sound FX -->
-      <div class="audio-section" id="audioSfx">
-        <div class="field-label">Sound description</div>
-        <textarea id="sfxText" class="prompt-box" rows="3" placeholder="thunderstorm with heavy rain and wind…"></textarea>
-
-        <div class="field-label">Duration (seconds) <span id="sfxDurVal" style="color:var(--fg3)">10</span>s</div>
-        <input type="range" class="stability-slider" id="sfxDuration" min="1" max="22" step="1" value="10" oninput="document.getElementById('sfxDurVal').textContent=this.value">
-
-        <div class="field-label">Prompt Influence <span id="sfxInflVal" style="color:var(--fg3)">0.30</span></div>
-        <div class="stability-labels"><span>Creative</span><span>Literal</span></div>
-        <input type="range" class="stability-slider" id="sfxInfluence" min="0" max="1" step="0.01" value="0.3" oninput="document.getElementById('sfxInflVal').textContent=parseFloat(this.value).toFixed(2)">
-
-        <button class="audio-gen-btn" id="sfxGenBtn" onclick="generateSfx()">
-          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polygon points="11,5 6,9 2,9 2,15 6,15 11,19 11,5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
-          Generate Sound Effect
-        </button>
-      </div>
-
-      <!-- Voice Changer (Speech to Speech) -->
-      <div class="audio-section" id="audioSts">
-        <div class="field-label">Upload Audio</div>
-        <label class="ref-upload-label">
-          <input type="file" id="stsAudioInput" accept="audio/*" style="display:none" onchange="stsFileChange(this)">
-          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          <span id="stsFileName">Upload audio file</span>
-        </label>
-
-        <div class="field-label">Target Voice</div>
-        <select class="param-select" id="stsVoiceSelect">
-          <option value="CwhRBWXzGAHq8TQ4Fs17">Roger — Laid-Back, Casual, Resonant</option>
-          <option value="21m00Tcm4TlvDq8ikWAM">Rachel — Calm, American</option>
-          <option value="ErXwobaYiN019PkySvjV">Antoni — Well-Rounded</option>
-          <option value="VR6AewLTigWG4xSOukaG">Arnold — Crisp</option>
-        </select>
-
-        <div class="stability-row">
-          <div class="field-label" style="margin-bottom:0">Stability <span id="stsStabVal" style="color:var(--fg3)">0.50</span></div>
-          <input type="range" class="stability-slider" id="stsStabSlider" min="0" max="1" step="0.01" value="0.5" oninput="document.getElementById('stsStabVal').textContent=parseFloat(this.value).toFixed(2)">
-        </div>
-
-        <button class="audio-gen-btn" id="stsGenBtn" onclick="generateSts()">
-          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-          Convert Voice
-        </button>
-      </div>
-
-      <!-- Audio Isolation -->
-      <div class="audio-section" id="audioIsolation">
-        <div class="field-label">Upload Audio</div>
-        <label class="ref-upload-label">
-          <input type="file" id="isolationAudioInput" accept="audio/*" style="display:none" onchange="isolationFileChange(this)">
-          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          <span id="isolationFileName">Upload audio file</span>
-        </label>
-        <p style="font-size:11px;color:var(--fg3);line-height:1.5">Remove background noise, music, and ambient sounds — isolate the vocal track.</p>
-
-        <button class="audio-gen-btn" id="isolationGenBtn" onclick="generateIsolation()">
-          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-          Isolate Audio
-        </button>
-      </div>
-
-      <!-- Output / History -->
-      <div id="audioOutput" style="display:none">
-        <div class="field-label" style="margin-bottom:8px">Output</div>
-        <div class="audio-history" id="audioHistory"></div>
-      </div>
-    </div>
-  </aside>
-
   <!-- Main content -->
   <main class="main">
     <div class="topbar">
@@ -1406,6 +1259,210 @@ html, body { height: 100%; background: var(--bg0); color: var(--fg); font-family
   </main>
 
 </div>
+
+<!-- ── Audio Workspace (full-screen, outside .shell) ── -->
+<div id="audioWorkspace" style="display:none;position:fixed;inset:0;background:var(--bg0);z-index:200;display:none;flex-direction:row">
+
+  <!-- Left nav sidebar -->
+  <nav style="width:220px;flex-shrink:0;background:var(--bg1);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:0">
+    <div style="padding:14px 16px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)">
+      <button onclick="closeAudioWorkspace()" style="background:none;border:none;color:var(--fg3);cursor:pointer;padding:4px;border-radius:var(--r);display:flex;align-items:center" title="Back">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="15,18 9,12 15,6"/></svg>
+      </button>
+      <span style="font-size:13px;font-weight:600;color:var(--fg)">Audio Studio</span>
+    </div>
+    <div style="padding:10px 8px;display:flex;flex-direction:column;gap:2px">
+      <button class="aw-nav-btn active" onclick="awNav('tts',this)">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polygon points="11,5 6,9 2,9 2,15 6,15 11,19 11,5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        Text to Speech
+      </button>
+      <button class="aw-nav-btn" onclick="awNav('sfx',this)">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5" fill="currentColor"/></svg>
+        Sound Effects
+      </button>
+      <button class="aw-nav-btn" onclick="awNav('sts',this)">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+        Voice Changer
+      </button>
+      <button class="aw-nav-btn" onclick="awNav('isolation',this)">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        Audio Isolation
+      </button>
+    </div>
+    <!-- Audio history in sidebar -->
+    <div style="flex:1;overflow-y:auto;padding:8px;border-top:1px solid var(--border);margin-top:8px">
+      <div style="font-size:10px;color:var(--fg3);font-weight:600;letter-spacing:.06em;padding:4px 6px 8px">HISTORY</div>
+      <div id="audioHistory" style="display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+  </nav>
+
+  <!-- Center: main editor area -->
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <!-- TTS section -->
+    <div id="awTts" class="aw-section active" style="flex:1;flex-direction:column;overflow:hidden">
+      <div style="padding:20px 28px 0;border-bottom:1px solid var(--border)">
+        <div style="font-size:18px;font-weight:600;color:var(--fg);margin-bottom:4px">Text to Speech</div>
+        <div style="font-size:12px;color:var(--fg3);padding-bottom:14px">Convert text to natural-sounding speech</div>
+      </div>
+      <div style="flex:1;padding:24px 28px;display:flex;flex-direction:column;gap:0;overflow:hidden">
+        <div style="flex:1;position:relative">
+          <textarea id="ttsText" style="width:100%;height:100%;background:transparent;border:none;outline:none;color:var(--fg);font-size:15px;font-family:var(--font);resize:none;line-height:1.6" placeholder="Enter text to convert to speech…"></textarea>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border)">
+          <span id="ttsCharCount" style="font-size:11px;color:var(--fg3)">0 / 10,000 characters</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <select id="ttsVoiceSelectMain" class="param-select" style="min-width:180px">
+              <option value="CwhRBWXzGAHq8TQ4Fs17">Roger — Laid-Back, Casual</option>
+              <option value="21m00Tcm4TlvDq8ikWAM">Rachel — Calm, American</option>
+              <option value="ErXwobaYiN019PkySvjV">Antoni — Well-Rounded</option>
+              <option value="VR6AewLTigWG4xSOukaG">Arnold — Crisp</option>
+              <option value="pNInz6obpgDQGcFmaJgB">Adam — Deep</option>
+              <option value="yoZ06aMxZJJ28mfd3POQ">Sam — Raspy</option>
+            </select>
+            <button onclick="loadVoices()" style="background:none;border:1px solid var(--border2);color:var(--fg3);border-radius:var(--r);padding:5px 10px;font-size:11px;cursor:pointer">↻ Load voices</button>
+            <button id="ttsGenBtn" onclick="generateTts()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--r);padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">
+              <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polygon points="11,5 6,9 2,9 2,15 6,15 11,19 11,5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+              Generate Speech
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SFX section -->
+    <div id="awSfx" class="aw-section" style="flex:1;display:none;flex-direction:column;overflow:hidden">
+      <div style="padding:20px 28px 0;border-bottom:1px solid var(--border)">
+        <div style="font-size:18px;font-weight:600;color:var(--fg);margin-bottom:4px">Sound Effects</div>
+        <div style="font-size:12px;color:var(--fg3);padding-bottom:14px">Generate sound effects from a text description</div>
+      </div>
+      <div style="flex:1;padding:24px 28px;display:flex;flex-direction:column;gap:16px;overflow-y:auto">
+        <textarea id="sfxText" style="width:100%;min-height:120px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);outline:none;color:var(--fg);font-size:14px;font-family:var(--font);resize:vertical;padding:12px;box-sizing:border-box" placeholder="thunderstorm with heavy rain and wind…"></textarea>
+        <div style="display:flex;gap:24px">
+          <div style="flex:1">
+            <div style="font-size:11px;color:var(--fg3);font-weight:600;margin-bottom:6px">DURATION: <span id="sfxDurVal">10</span>s</div>
+            <input type="range" id="sfxDuration" min="1" max="22" step="1" value="10" style="width:100%;accent-color:var(--accent)" oninput="document.getElementById('sfxDurVal').textContent=this.value">
+          </div>
+          <div style="flex:1">
+            <div style="font-size:11px;color:var(--fg3);font-weight:600;margin-bottom:6px">PROMPT INFLUENCE: <span id="sfxInflVal">0.30</span></div>
+            <input type="range" id="sfxInfluence" min="0" max="1" step="0.01" value="0.3" style="width:100%;accent-color:var(--accent)" oninput="document.getElementById('sfxInflVal').textContent=parseFloat(this.value).toFixed(2)">
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end">
+          <button id="sfxGenBtn" onclick="generateSfx()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--r);padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer">Generate Sound Effect</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Voice Changer section -->
+    <div id="awSts" class="aw-section" style="flex:1;display:none;flex-direction:column;overflow:hidden">
+      <div style="padding:20px 28px 0;border-bottom:1px solid var(--border)">
+        <div style="font-size:18px;font-weight:600;color:var(--fg);margin-bottom:4px">Voice Changer</div>
+        <div style="font-size:12px;color:var(--fg3);padding-bottom:14px">Convert your audio to a different voice</div>
+      </div>
+      <div style="flex:1;padding:24px 28px;display:flex;flex-direction:column;gap:16px;overflow-y:auto">
+        <label style="border:2px dashed var(--border2);border-radius:var(--r2);padding:32px;text-align:center;cursor:pointer;display:block;transition:border-color .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border2)'">
+          <input type="file" id="stsAudioInput" accept="audio/*" style="display:none" onchange="stsFileChange(this)">
+          <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="color:var(--fg3);display:block;margin:0 auto 10px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <div style="font-size:13px;color:var(--fg2)" id="stsFileName">Click to upload audio file</div>
+          <div style="font-size:11px;color:var(--fg3);margin-top:4px">MP3, WAV, M4A</div>
+        </label>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="flex:1">
+            <div style="font-size:11px;color:var(--fg3);font-weight:600;margin-bottom:6px">TARGET VOICE</div>
+            <select class="param-select" id="stsVoiceSelect" style="width:100%">
+              <option value="CwhRBWXzGAHq8TQ4Fs17">Roger — Laid-Back, Casual</option>
+              <option value="21m00Tcm4TlvDq8ikWAM">Rachel — Calm, American</option>
+              <option value="ErXwobaYiN019PkySvjV">Antoni — Well-Rounded</option>
+              <option value="VR6AewLTigWG4xSOukaG">Arnold — Crisp</option>
+            </select>
+          </div>
+          <button id="stsGenBtn" onclick="generateSts()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--r);padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer;margin-top:16px">Convert Voice</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Isolation section -->
+    <div id="awIsolation" class="aw-section" style="flex:1;display:none;flex-direction:column;overflow:hidden">
+      <div style="padding:20px 28px 0;border-bottom:1px solid var(--border)">
+        <div style="font-size:18px;font-weight:600;color:var(--fg);margin-bottom:4px">Audio Isolation</div>
+        <div style="font-size:12px;color:var(--fg3);padding-bottom:14px">Remove background noise — isolate the vocal track</div>
+      </div>
+      <div style="flex:1;padding:24px 28px;display:flex;flex-direction:column;gap:16px;overflow-y:auto">
+        <label style="border:2px dashed var(--border2);border-radius:var(--r2);padding:32px;text-align:center;cursor:pointer;display:block;transition:border-color .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border2)'">
+          <input type="file" id="isolationAudioInput" accept="audio/*" style="display:none" onchange="isolationFileChange(this)">
+          <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="color:var(--fg3);display:block;margin:0 auto 10px"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          <div style="font-size:13px;color:var(--fg2)" id="isolationFileName">Click to upload audio file</div>
+          <div style="font-size:11px;color:var(--fg3);margin-top:4px">MP3, WAV, M4A</div>
+        </label>
+        <div style="display:flex;justify-content:flex-end">
+          <button id="isolationGenBtn" onclick="generateIsolation()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--r);padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer">Isolate Audio</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right settings panel (TTS only) -->
+  <aside id="awSettings" style="width:260px;flex-shrink:0;background:var(--bg1);border-left:1px solid var(--border);overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:14px">
+    <div style="font-size:11px;font-weight:600;color:var(--fg3);letter-spacing:.06em">SETTINGS</div>
+
+    <div>
+      <div style="font-size:11px;color:var(--fg3);font-weight:600;margin-bottom:6px">MODEL</div>
+      <select class="param-select" id="ttsModelSelect" style="width:100%">
+        <option value="eleven_v4">Eleven v4 — Fastest</option>
+        <option value="eleven_v4_turbo">Eleven v4 Turbo</option>
+        <option value="eleven_v3">Eleven v3 — Expressive</option>
+        <option value="eleven_multilingual_v2">Multilingual v2</option>
+        <option value="eleven_turbo_v2_5">Turbo v2.5</option>
+        <option value="eleven_flash_v2_5">Flash v2.5</option>
+      </select>
+    </div>
+
+    <div>
+      <div style="font-size:11px;color:var(--fg3);font-weight:600;margin-bottom:2px">STABILITY <span id="stabilityVal" style="color:var(--fg2)">0.50</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--fg3);margin-bottom:4px"><span>More Variable</span><span>More Stable</span></div>
+      <input type="range" id="stabilitySlider" min="0" max="1" step="0.01" value="0.5" style="width:100%;accent-color:var(--accent)" oninput="document.getElementById('stabilityVal').textContent=parseFloat(this.value).toFixed(2)">
+    </div>
+
+    <div>
+      <div style="font-size:11px;color:var(--fg3);font-weight:600;margin-bottom:2px">SIMILARITY <span id="similarityVal" style="color:var(--fg2)">0.75</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--fg3);margin-bottom:4px"><span>Low</span><span>High</span></div>
+      <input type="range" id="similaritySlider" min="0" max="1" step="0.01" value="0.75" style="width:100%;accent-color:var(--accent)" oninput="document.getElementById('similarityVal').textContent=parseFloat(this.value).toFixed(2)">
+    </div>
+
+    <div>
+      <div style="font-size:11px;color:var(--fg3);font-weight:600;margin-bottom:2px">STYLE <span id="styleVal" style="color:var(--fg2)">0.00</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--fg3);margin-bottom:4px"><span>None</span><span>Exaggerated</span></div>
+      <input type="range" id="styleSlider" min="0" max="1" step="0.01" value="0" style="width:100%;accent-color:var(--accent)" oninput="document.getElementById('styleVal').textContent=parseFloat(this.value).toFixed(2)">
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:11px;color:var(--fg3);font-weight:600">SPEAKER BOOST</span>
+      <label class="ai-toggle"><input type="checkbox" id="speakerBoost" checked><span class="ai-track"><span class="ai-thumb"></span></span></label>
+    </div>
+
+    <div>
+      <div style="font-size:11px;color:var(--fg3);font-weight:600;margin-bottom:6px">OUTPUT FORMAT</div>
+      <select class="param-select" id="ttsOutputFormat" style="width:100%">
+        <option value="mp3_44100_128">MP3 44.1kHz 128kbps</option>
+        <option value="mp3_44100_64">MP3 44.1kHz 64kbps</option>
+        <option value="pcm_44100">PCM 44.1kHz</option>
+      </select>
+    </div>
+
+  </aside>
+</div>
+
+<style>
+.aw-nav-btn {
+  width:100%;padding:8px 10px;background:none;border:none;color:var(--fg3);cursor:pointer;
+  border-radius:var(--r);font-size:12px;font-weight:500;text-align:left;
+  display:flex;align-items:center;gap:8px;transition:background .12s,color .12s;
+}
+.aw-nav-btn:hover{background:var(--bg3);color:var(--fg2);}
+.aw-nav-btn.active{background:var(--bg3);color:var(--fg);}
+.aw-section{display:none!important;}
+.aw-section.active{display:flex!important;}
+</style>
 
 <!-- ── Mobile settings panel (outside .shell, true fixed overlay) ── -->
 <div id="mobilePanelWrap">
@@ -2405,18 +2462,28 @@ function setRailMode(mode, btn) {
     onModelChange();
   }
 
-  // Show/hide audio panel vs normal left-panel
-  const normalPanel = document.querySelector('.left-panel:not(#audioPanel)');
-  const audioPanel = document.getElementById('audioPanel');
-  const normalGenArea = document.querySelector('.generate-area');
   if (mode === 'audio') {
-    if (normalPanel) normalPanel.style.display = 'none';
-    if (audioPanel) audioPanel.style.display = 'flex';
+    document.getElementById('audioWorkspace').style.display = 'flex';
     currentMode = 'audio';
-  } else {
-    if (normalPanel) normalPanel.style.display = '';
-    if (audioPanel) audioPanel.style.display = 'none';
   }
+}
+
+function closeAudioWorkspace() {
+  document.getElementById('audioWorkspace').style.display = 'none';
+  // Re-activate image mode
+  setRailMode('image', document.querySelector('.rail-btn'));
+}
+
+function awNav(tab, btn) {
+  document.querySelectorAll('.aw-nav-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.aw-section').forEach(s => s.classList.remove('active'));
+  const map = { tts: 'awTts', sfx: 'awSfx', sts: 'awSts', isolation: 'awIsolation' };
+  const el = document.getElementById(map[tab]);
+  if (el) el.classList.add('active');
+  // Show/hide right settings panel (only relevant for TTS)
+  const awSettings = document.getElementById('awSettings');
+  if (awSettings) awSettings.style.display = tab === 'tts' ? '' : 'none';
 }
 
 // ── Start frame upload ────────────────────
@@ -2904,17 +2971,13 @@ mpOnModelChange();
 let stsAudioData = null;
 let isolationAudioData = null;
 
-function audioSubTab(tab, btn) {
-  document.querySelectorAll('.audio-sub-tab').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.audio-section').forEach(s => s.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  const section = { tts: 'audioTts', sfx: 'audioSfx', sts: 'audioSts', isolation: 'audioIsolation' }[tab];
-  if (section) document.getElementById(section).classList.add('active');
-}
 
-// Character counter
-document.getElementById('ttsText').addEventListener('input', function() {
-  document.getElementById('ttsCharCount').textContent = this.value.length + ' / 10,000';
+// Character counter — set up after DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+  const ttsEl = document.getElementById('ttsText');
+  if (ttsEl) ttsEl.addEventListener('input', function() {
+    document.getElementById('ttsCharCount').textContent = this.value.length + ' / 10,000 characters';
+  });
 });
 
 async function loadVoices() {
@@ -2925,8 +2988,10 @@ async function loadVoices() {
     if (!data.voices) { showToast('Failed to load voices'); return; }
     const voices = data.voices.slice(0, 80);
     const opts = voices.map(v => `<option value="${v.voice_id}">${v.name}</option>`).join('');
-    document.getElementById('ttsVoiceSelect').innerHTML = opts;
-    document.getElementById('stsVoiceSelect').innerHTML = opts;
+    ['ttsVoiceSelectMain','stsVoiceSelect'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = opts;
+    });
     showToast(`${voices.length} voices loaded ✓`);
   } catch(e) {
     showToast('Error: ' + e.message);
@@ -3001,7 +3066,7 @@ async function generateTts() {
   try {
     const body = {
       text,
-      voice_id: document.getElementById('ttsVoiceSelect').value,
+      voice_id: document.getElementById('ttsVoiceSelectMain').value,
       model_id: document.getElementById('ttsModelSelect').value,
       output_format: 'mp3_44100_128',
       voice_settings: {
@@ -3070,7 +3135,7 @@ async function generateSts() {
       model_id: 'eleven_multilingual_sts_v2',
       output_format: 'mp3_44100_128',
       voice_settings: {
-        stability: parseFloat(document.getElementById('stsStabSlider').value),
+        stability: parseFloat(document.getElementById('stabilitySlider').value),
         similarity_boost: 0.75
       }
     };
